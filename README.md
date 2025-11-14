@@ -12,10 +12,19 @@ Can you help us fix some issues and implement missing features?
   **Answer**: Currently the code will first add the rental to the Rental DBSet, and afterwards it will try to save the changes into the database. Without asnyc/await, this means that our thread will now be blocked while waiting for the database operation to finish before continuining the code; with async/await, when the request to make changes is made, the thread is released until the operation is done, meaning better efficient use of resources.
 
 - Please finish the method to filter rentals by customer name, and add the new endpoint.
+
 - We noticed we do not have a table for customers, it is not good to have just the customer name in the rental.
   Can you help us add a new entity for this? Don't forget to change the customer name field to a foreign key, and fix your previous method!
+
+  **Answer**: A new entity was created (Customer), afterwards EF needs to be used to add the migration and update the database. Fixed the previous method in a simple direct way, but there should exist additional protections like making sure the customerId is valid and that a Customer exists for that id, before getting the rentals for the customer.
+
 - In the MovieFeatures class, there is a method to list all movies, tell us your opinion about it.
+
+  **Answer**: The problem is related to getting all the movies from the database into memory, if we have a large database then we are going to occupy a large size of memory with the movies data, it would be best to add pagination so we can get a smaller group of movies at a time.
+
 - No exceptions are being caught in this api, how would you deal with these exceptions?
+
+  **Answer**: Most often, Exceptions should not be caught in the API, they should be managed by the middleware (we can create our own for this). We should only catch exceptions in the API when we intend to hide domain information (so, catch and rethrow with different data) or when we can recover from the error (retry an operation). We can also deal with expected errors, like validation errors, so we can return a more specific information regarding the error.
 
       ## Challenge (Nice to have)
 

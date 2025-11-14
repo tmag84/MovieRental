@@ -41,4 +41,8 @@ Here are the specific instructions for this implementation:
 - Extensibility:
   - The system should be designed to allow the addition of more payment providers in the future, ensuring flexibility and scalability.
 - Payment Failure Handling:
+
   - If the payment method fails during the transaction, the system should prevent the creation of the rental record. In such cases, no rental should be saved to the database.
+
+  **Answer**: I created a IProviderPayment interface, for the existing payment providers to implement, as this will allow more payment providers to be added in future, without need to make existing code. To get the payment provider we use the rental.paymentmethod property, which has the name of the provider to use. In this simple example we are just creating a new instance of the corresponding payment provider, but in a more complex scenario we should instead create scoped instances of the payment providers to use in these requests, so that the system handles the resource managemenet more effectively.
+  When saving a rental, we first get the payment provider and verify if it exists, before attempting to make payment. If payment is a success, then we save the rental. We could have more validation protection (making sure values exist) and more detailed information for when the operation fail with custom exceptions (like FailedPaymentException), that our middleware would later handle.

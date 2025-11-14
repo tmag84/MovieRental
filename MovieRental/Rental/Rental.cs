@@ -14,6 +14,7 @@ namespace MovieRental.Rental
 		public int MovieId { get; set; }
 
 		public string PaymentMethod { get; set; } = string.Empty;
+		public double RentalPrice { get; set; }
 
         // TODO: we should have a table for the customers
         [ForeignKey("Customer")]

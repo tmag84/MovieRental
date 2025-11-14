@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using MovieRental.Customer;
 using System.Reflection.Metadata;
 
 namespace MovieRental.Data
@@ -8,6 +9,7 @@ namespace MovieRental.Data
 	{
 		public DbSet<Movie.Movie> Movies { get; set; }
 		public DbSet<Rental.Rental> Rentals { get; set; }
+		public DbSet<Customer.Customer> Customers { get; set; }
 
 		private string DbPath { get; }
 

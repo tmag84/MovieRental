@@ -17,7 +17,7 @@ namespace MovieRental.Controllers
         }
 
         [HttpGet("{customerId}")]
-        public IActionResult GetCostumerRentals(string customerId)
+        public IActionResult GetCostumerRentals(int customerId)
         {
             return Ok(_features.GetRentalsByCustomerName(customerId));
         }

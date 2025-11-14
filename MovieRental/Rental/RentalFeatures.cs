@@ -20,10 +20,10 @@ namespace MovieRental.Rental
 		}
 
 		//TODO: finish this method and create an endpoint for it
-		public IEnumerable<Rental> GetRentalsByCustomerName(string customerName)
+		public IEnumerable<Rental> GetRentalsByCustomerName(int customerId)
 		{
 			return _movieRentalDb.Rentals
-				.Where(r => r.CustomerName == customerName)
+				.Where(r => r.CustomerId == customerId)
 				.ToList();
 		}
 

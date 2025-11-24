@@ -2,6 +2,7 @@
 {
     public class MbWayProvider : IPaymentProvider
     {
+        public string GetProviderName() => "MbWay";
         public Task<bool> Pay(double price)
         {
             //ignore this implementation

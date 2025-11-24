@@ -6,43 +6,50 @@ namespace MovieRental.Rental
 	public class RentalFeatures : IRentalFeatures
 	{
 		private readonly MovieRentalDbContext _movieRentalDb;
-		public RentalFeatures(MovieRentalDbContext movieRentalDb)
+		private readonly IEnumerable<IPaymentProvider> _paymentProviders;
+		public RentalFeatures(MovieRentalDbContext movieRentalDb, IEnumerable<IPaymentProvider> paymentProviders)
 		{
 			_movieRentalDb = movieRentalDb;
+			_paymentProviders = paymentProviders;
 		}
 
 		private IPaymentProvider? GetPaymentProvider(string? paymentMethod)
 		{
-			return paymentMethod switch
-			{
-				"MbWay" => new MbWayProvider(),
-				"Paypal" => new PayPalProvider(),
-				_ => null
-			};
+			return _paymentProviders.Where(pp => pp.GetProviderName().Equals(paymentMethod)).FirstOrDefault();
 		}
 
 		//TODO: make me async :(
 		public async Task<Rental> Save(Rental rental)
 		{
 			var paymentProvider = GetPaymentProvider(rental?.PaymentMethod);
-			if (paymentProvider != null)
+			using (var scope = _movieRentalDb.Database.BeginTransaction())
 			{
-				if (await paymentProvider.Pay(rental!.RentalPrice)) 
+				try
 				{
-                    _movieRentalDb.Rentals.Add(rental);
-                    await _movieRentalDb.SaveChangesAsync();
-                    return rental;
+                    if (paymentProvider != null && rental != null)
+                    {
+                        _movieRentalDb.Rentals.Add(rental);
+                        if (await paymentProvider.Pay(rental!.RentalPrice))
+                        {
+                            await _movieRentalDb.SaveChangesAsync();
+                            return rental;
+                        }
+                    }
+                    throw new InvalidOperationException("Payment was not successfull.");
                 }
-			}
-			// this is a very generic exception, we can give much more detailed information regarding the failure
-			throw new Exception($"The rental failed.");			
+				catch (Exception ex)
+				{
+					await scope.RollbackAsync();
+                    throw new Exception($"{ex.Message}");
+				}
+            }
 		}
 
 		//TODO: finish this method and create an endpoint for it
 		public IEnumerable<Rental> GetRentalsByCustomerName(int customerId)
 		{
 			return _movieRentalDb.Rentals
-				.Where(r => r.CustomerId == customerId)
+				.Where(r => r.Customer != null && r.Customer.Id == customerId)
 				.ToList();
 		}
 
